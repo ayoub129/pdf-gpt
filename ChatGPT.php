@@ -16,7 +16,7 @@ function ReqResGPT($api_key, $input_text)
         'model' => 'gpt-3.5-turbo-1106',  // Specify the chat model
         'messages' => [
             ['role' => 'system', 'content' => 'You are a helpful assistant.'],
-            ['role' => 'user', 'content' => "Analyze the following text and provide a report number and the sample description of the item , and could you tell me the analytical (tests) Names and their ratings (all of them in the text) ,and the analytical summary from the text and i need the response to be like this: Report Number: (the number)\n\nItem Description: \n (item description)\n\nAnalytical Summary:\n (the summary)\n\nNames and Ratings:\n(the name) - (the rating) \n\n " . $input_text],
+            ['role' => 'user', 'content' => "Analyze the following text and provide a report number and the sample description of the item , and could you tell me the analytical (tests) Names and their ratings (all of them in the text) ,and the analytical summary from the text and i need the response to be like this: Report Number: (the number)\n\nItem Description:\n(item description)\n\nAnalytical Summary:\n (the summary)\n\nNames and Ratings:\n(the name) - (the rating) \n\n " . $input_text],
         ],
         'max_tokens' => 1000,  // You can adjust this based on the desired length of the completion
     ];
@@ -34,7 +34,6 @@ function ReqResGPT($api_key, $input_text)
     // Execute cURL session and get the response
     $response = curl_exec($ch);
     print_r($response);
-
     // Check for cURL errors
     if (curl_errno($ch)) {
         echo 'Curl error: ' . curl_error($ch);
