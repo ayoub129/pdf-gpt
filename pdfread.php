@@ -26,7 +26,7 @@ foreach ($pdfFiles as $pdfFile) {
     $reportNumber = preg_match('/Report Number: ([0-9.]+)/', $returnedText, $matches) ? $matches[1] : null;
 
     // Extracting the item description
-    $desc = preg_match('/Item Description: (.+)/', $returnedText, $matches) ? $matches[1] : null;
+    $desc = preg_match('/Item Description: \n(.*?)(?:\nAnalytical Summary|$)/s', $returnedText, $matches) ? $matches[1] : null;
 
     // Extracting analytical summary
     $analyticalSummary = preg_match('/Analytical Summary:\n(.+)/', $returnedText, $matches) ? $matches[1] : null;
