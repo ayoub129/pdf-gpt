@@ -1,13 +1,18 @@
 <?php
 
+include 'vendor/autoload.php';
+
 function extractTextFromPDF($filename)
 {
-    $command = "poppler\bin\pdftotext -layout {$filename} -"; // -layout preserves the layout structure
-    $output = [];
-    exec($command, $output);
 
-    // Combine lines into a single string
-    $text = implode("\n", $output);
+    // Initialize and load PDF Parser library 
+    $parser = new \Smalot\PdfParser\Parser();
 
-    return $text;
+    // Parse pdf file using Parser library 
+    $pdf = $parser->parseFile($filename);
+
+    // Extract text from PDF 
+    $textContent = $pdf->getText();
+
+    return $textContent;
 }
