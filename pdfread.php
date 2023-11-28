@@ -12,7 +12,7 @@ $archiveFolder = "./archive";
 // Get all PDF files in the specified folder
 $pdfFiles = glob("{$folderPath}/*.pdf");
 
-$api_key = "";
+$api_key = "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";
 
 // Process each PDF file in the folder
 foreach ($pdfFiles as $pdfFile) {
@@ -20,16 +20,17 @@ foreach ($pdfFiles as $pdfFile) {
     $textFromPDF = extractTextFromPDF($pdfFile);
 
     $returnedText = ReqResGPT($api_key, $textFromPDF);
-    echo $returnedText;
 
     // Extracting report number
-    $reportNumber = preg_match('/Report Number: ([0-9.]+)/', $returnedText, $matches) ? $matches[1] : null;
+    $reportNumber = preg_match('/Report Number: (.+)/', $returnedText, $matches) ? $matches[1] : null;
 
     // Extracting the item description
-    $desc = preg_match('/Item Description: \n(.*?)(?:\nAnalytical Summary|$)/s', $returnedText, $matches) ? $matches[1] : null;
+    $desc = preg_match('/Item Description:\n(.*?)(?:\nAnalytical Summary|$)/s', $returnedText, $matches) ? $matches[1] : null;
+
 
     // Extracting analytical summary
     $analyticalSummary = preg_match('/Analytical Summary:\n(.+)/', $returnedText, $matches) ? $matches[1] : null;
+
 
     // Name and Ratings
     $NamesAndRatingsText = preg_match('/Names and Ratings:\n(.+)/s', $returnedText, $matches) ? $matches[1] : null;
@@ -54,10 +55,14 @@ foreach ($pdfFiles as $pdfFile) {
         }
     }
 
-    // Check if all necessary data is available before saving to the database
+
+    
+          // Check if all necessary data is available before saving to the database
     if ($reportNumber !== null && !empty($analyticalNames) && !empty($ratings) && $analyticalSummary !== null) {
         // Save To database
         saveToDatabase($pdfFile, $desc, $reportNumber, $analyticalNames, $ratings, $analyticalSummary);
+
+        echo "Data inserted successfully";
 
         // Move the processed file to the archive folder
         $archiveFilePath = "{$archiveFolder}/" . basename($pdfFile);
@@ -66,5 +71,8 @@ foreach ($pdfFiles as $pdfFile) {
         // Move the file to the error folder
         $errorFilePath = "{$errorFolder}/" . basename($pdfFile);
         rename($pdfFile, $errorFilePath);
+        echo "you have an error";
+        
     }
+
 }
