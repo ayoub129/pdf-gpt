@@ -12,7 +12,7 @@ $archiveFolder = "./archive";
 // Get all PDF files in the specified folder
 $pdfFiles = glob("{$folderPath}/*.pdf");
 
-$api_key = "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";
+$api_key ="";
 
 // Process each PDF file in the folder
 foreach ($pdfFiles as $pdfFile) {
