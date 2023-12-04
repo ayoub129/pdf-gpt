@@ -2,7 +2,7 @@
 require "PDFExtracter.php";
 require "ChatGPT.php";
 require "DataBase.php";
-
+require "PerformOcr.php";
 
 // Specify the folder where your PDF files are located
 $folderPath = './pdfs';
@@ -10,30 +10,67 @@ $errorFolder = "./error";
 $archiveFolder = "./archive";
 
 // Get all PDF files in the specified folder
-$pdfFiles = glob("{$folderPath}/*.pdf");
+$files = glob("{$folderPath}/*.{pdf,png,jpg,jpeg}", GLOB_BRACE);
 
-$api_key ="";
+$api_key = "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";
+
+
 
 // Process each PDF file in the folder
-foreach ($pdfFiles as $pdfFile) {
+foreach ($files as $file) {
+    // Determine the file type
+    $fileExtension = strtolower(pathinfo($file, PATHINFO_EXTENSION));
 
-    $textFromPDF = extractTextFromPDF($pdfFile);
+    // Initialize variables for OCR results
+    $textFromFile = null;
+    // Check the file type and perform appropriate actions
+    switch ($fileExtension) {
+        case 'pdf':
+            // Extract text from PDF
+            $textFromPDF = extractTextFromPDF($file);
 
-    $returnedText = ReqResGPT($api_key, $textFromPDF);
+            // Use OCR if text extraction from PDF fails
+            if (empty(trim($textFromPDF))) {
+                $textFromFile =  null;
+            } else {
+                $textFromFile = $textFromPDF;
+            }
+            break;
+
+        case 'png':
+        case 'jpg':
+        case 'jpeg':
+            // Perform OCR for image files
+            $textFromFile = performOCR($file);
+            echo $textFromFile;
+            break;
+
+        default:
+            // Handle unsupported file types or log an error
+            echo "Unsupported file type: {$fileExtension}\n";
+            break;
+    }
+
+    if ($textFromFile != null) {
+        $returnedText = ReqResGPT($api_key, $textFromFile, null);
+    } else {
+        $returnedText = ReqResGPT($api_key, null, $file);
+    }
+
 
     // Extracting report number
-    $reportNumber = preg_match('/Report Number: (.+)/', $returnedText, $matches) ? $matches[1] : null;
+    $reportNumber = preg_match('/Date: (.+)/', $returnedText, $matches) ? $matches[1] : null;
 
     // Extracting the item description
-    $desc = preg_match('/Item Description:\n(.*?)(?:\nAnalytical Summary|$)/s', $returnedText, $matches) ? $matches[1] : null;
+    $desc = preg_match('/Name Person:\n(.*?)/s', $returnedText, $matches) ? $matches[1] : null;
 
 
     // Extracting analytical summary
-    $analyticalSummary = preg_match('/Analytical Summary:\n(.+)/', $returnedText, $matches) ? $matches[1] : null;
+    $analyticalSummary = preg_match('/nGeneral Summary:\n(.+)/', $returnedText, $matches) ? $matches[1] : null;
 
 
     // Name and Ratings
-    $NamesAndRatingsText = preg_match('/Names and Ratings:\n(.+)/s', $returnedText, $matches) ? $matches[1] : null;
+    $NamesAndRatingsText = preg_match('/nAnalysis and Values:\n(.+)/s', $returnedText, $matches) ? $matches[1] : null;
 
     // Split the text into lines
     $lines = explode("\n", $NamesAndRatingsText);
@@ -55,24 +92,25 @@ foreach ($pdfFiles as $pdfFile) {
         }
     }
 
-
-    
-          // Check if all necessary data is available before saving to the database
+    // Check if all necessary data is available before saving to the database
     if ($reportNumber !== null && !empty($analyticalNames) && !empty($ratings) && $analyticalSummary !== null) {
         // Save To database
-        saveToDatabase($pdfFile, $desc, $reportNumber, $analyticalNames, $ratings, $analyticalSummary);
+        $timestamp = time();
+        $newFileName = pathinfo($file, PATHINFO_FILENAME) . "_{$timestamp}." . pathinfo($file, PATHINFO_EXTENSION);
+
+        saveToDatabase($newFileName, $desc, $reportNumber, $analyticalNames, $ratings, $analyticalSummary);
 
         echo "Data inserted successfully";
 
         // Move the processed file to the archive folder
-        $archiveFilePath = "{$archiveFolder}/" . basename($pdfFile);
-        rename($pdfFile, $archiveFilePath);
+        $archiveFilePath = "{$archiveFolder}/" . basename($newFileName);
+        rename($file, $archiveFilePath);
     } else {
+        $timestamp = time();
+        $newFileName = pathinfo($file, PATHINFO_FILENAME) . "_{$timestamp}." . pathinfo($file, PATHINFO_EXTENSION);
         // Move the file to the error folder
-        $errorFilePath = "{$errorFolder}/" . basename($pdfFile);
-        rename($pdfFile, $errorFilePath);
+        $errorFilePath = "{$errorFolder}/" . basename($newFileName);
+        rename($file, $errorFilePath);
         echo "you have an error";
-        
     }
-
 }
