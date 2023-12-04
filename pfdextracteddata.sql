@@ -3,11 +3,8 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
-<<<<<<< HEAD
--- Generation Time: Nov 27, 2023 at 12:25 AM
-=======
+
 -- Generation Time: Nov 25, 2023 at 02:22 PM
->>>>>>> c47afb35066681dc889fa293dbf9e8dcb6e1661c
 -- Server version: 10.4.24-MariaDB
 -- PHP Version: 8.0.19
 
@@ -37,11 +34,7 @@ CREATE TABLE `report` (
   `description` varchar(255) NOT NULL,
   `filename` varchar(255) NOT NULL,
   `timestamp` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-<<<<<<< HEAD
   `summary` text NOT NULL
-=======
-  `summary` varchar(255) NOT NULL
->>>>>>> c47afb35066681dc889fa293dbf9e8dcb6e1661c
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
@@ -81,21 +74,13 @@ ALTER TABLE `result_project`
 -- AUTO_INCREMENT for table `report`
 --
 ALTER TABLE `report`
-<<<<<<< HEAD
   MODIFY `report_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
-=======
-  MODIFY `report_id` int(11) NOT NULL AUTO_INCREMENT;
->>>>>>> c47afb35066681dc889fa293dbf9e8dcb6e1661c
 
 --
 -- AUTO_INCREMENT for table `result_project`
 --
 ALTER TABLE `result_project`
-<<<<<<< HEAD
   MODIFY `result_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=106;
-=======
-  MODIFY `result_id` int(11) NOT NULL AUTO_INCREMENT;
->>>>>>> c47afb35066681dc889fa293dbf9e8dcb6e1661c
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
